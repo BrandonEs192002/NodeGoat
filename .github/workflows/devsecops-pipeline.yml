@@ -11,14 +11,14 @@ jobs:
   analysis:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
-    env:
-      REPORTS: ${{ runner.temp }}/reports
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
       - name: Initialize evidence
         run: |
+          REPORTS="$RUNNER_TEMP/reports"
+          echo "REPORTS=$REPORTS" >> "$GITHUB_ENV"
           mkdir -p "$REPORTS"
           git rev-parse HEAD > "$REPORTS/commit.txt"
           date -u +%FT%TZ > "$REPORTS/date.txt"
