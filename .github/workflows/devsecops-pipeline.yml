@@ -1,0 +1,56 @@
+name: DevSecOps Semana 07
+on:
+  push:
+    branches: [tarea-s07]
+  pull_request:
+    branches: [tarea-s07]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  analysis:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      REPORTS: ${{ runner.temp }}/reports
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Initialize evidence
+        run: |
+          mkdir -p "$REPORTS"
+          git rev-parse HEAD > "$REPORTS/commit.txt"
+          date -u +%FT%TZ > "$REPORTS/date.txt"
+      - name: SAST
+        run: |
+          pipx install semgrep==1.185.0
+          semgrep --version > "$REPORTS/semgrep-version.txt"
+          semgrep scan --config .security/security-audit.yaml --exclude .security --metrics off --disable-version-check --json-output "$REPORTS/semgrep.json" --sarif-output "$REPORTS/semgrep.sarif" . > "$REPORTS/semgrep.log" 2>&1
+      - name: SBOM
+        if: ${{ always() }}
+        run: |
+          curl -fsSL https://github.com/anchore/syft/releases/download/v1.57.1/syft_1.57.1_linux_amd64.tar.gz -o "$RUNNER_TEMP/syft.tar.gz"
+          tar -xzf "$RUNNER_TEMP/syft.tar.gz" -C "$RUNNER_TEMP" syft
+          "$RUNNER_TEMP/syft" version > "$REPORTS/syft-version.txt"
+          "$RUNNER_TEMP/syft" scan dir:. -o cyclonedx-json="$REPORTS/sbom.cyclonedx.json" > "$REPORTS/syft.log" 2>&1
+      - name: SCA
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        if: ${{ always() }}
+        run: |
+          curl -fsSL https://github.com/dependency-check/DependencyCheck/releases/download/v13.0.0/dependency-check-13.0.0-release.zip -o "$RUNNER_TEMP/dc.zip"
+          unzip -q "$RUNNER_TEMP/dc.zip" -d "$RUNNER_TEMP"
+          "$RUNNER_TEMP/dependency-check/bin/dependency-check.sh" --version > "$REPORTS/dc-version.txt"
+          "$RUNNER_TEMP/dependency-check/bin/dependency-check.sh" --project NodeGoat --scan . --out "$REPORTS" --format HTML --format JSON --failOnCVSS 7 --enableExperimental --nvdApiKey "$NVD_API_KEY" > "$REPORTS/dc-console.log" 2>&1
+      - name: Quality Gate
+        if: ${{ always() }}
+        run: python3 .security/gate.py "$REPORTS" > "$REPORTS/quality-gate.json"
+      - name: Preserve evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: evidence-${{ github.run_id }}-${{ github.sha }}
+          path: ${{ runner.temp }}/reports
+          if-no-files-found: error
+          retention-days: 30
