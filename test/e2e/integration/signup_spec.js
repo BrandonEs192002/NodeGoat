@@ -57,7 +57,8 @@ describe("/signup behaviour", () => {
         .first()
         .click();
 
-      cy.get(".alert-danger").should("not.be.visible");
+      // Successful signup renders the dashboard, which has no signup error element.
+      cy.get(".alert-danger").should("not.exist");
 
       cy.get(".breadcrumb > li")
         .invoke("text")
