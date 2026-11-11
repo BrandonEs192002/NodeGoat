@@ -94,9 +94,9 @@ module.exports = function(grunt) {
             testSecurityDependenciesInstalled: {
                 options: {
                     test: function() {
-                        console.log("Checking to see if chromedriver is installed.");
+                        console.log("Checking Selenium Chrome support (Selenium Manager resolves the driver).");
                         try {
-                            return require.resolve("chromedriver");
+                            return require.resolve("selenium-webdriver/chrome");
                         } catch (e) {
                             console.log(e);
                             console.log("We will now try to install it.");
@@ -108,7 +108,7 @@ module.exports = function(grunt) {
                     }
                 },
                 ifTrue: ["mochaTest:security"],
-                ifFalse: ["npm-install:chromedriver@^2.21.2", "mochaTest:security"]
+                ifFalse: ["npm-install:chromedriver", "mochaTest:security"]
             }
         },
         mochaTest: {
@@ -148,9 +148,23 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks("grunt-concurrent");
     grunt.loadNpmTasks("grunt-env");
     grunt.loadNpmTasks("grunt-jsbeautifier");
-    grunt.loadNpmTasks("grunt-retire"); // run as: grunt retire
-    grunt.loadNpmTasks("grunt-if");
-    grunt.loadNpmTasks("grunt-npm-install");
+    // Keep the audit command using the maintained Retire.js CLI.
+    grunt.registerTask("retire", function() {
+        const done = this.async();
+        require("child_process").spawn(process.execPath,
+            [require.resolve("retire/lib/cli.js"), "--path", "."],
+            { stdio: "inherit" }).on("close", code => done(code === 0));
+    });
+    grunt.registerMultiTask("if", function() {
+        let passed = false;
+        try { passed = Boolean(this.options().test()); } catch (err) { passed = false; }
+        grunt.task.run(passed ? this.data.ifTrue : this.data.ifFalse);
+    });
+    grunt.registerTask("npm-install", function(packageSpec) {
+        const done = this.async();
+        require("child_process").spawn("npm", ["install", "--save-dev", packageSpec],
+            { stdio: "inherit" }).on("close", code => done(code === 0));
+    });
 
     // Making grunt default to force in order not to break the project.
     grunt.option("force", true);

@@ -6,11 +6,11 @@ const bodyParser = require("body-parser");
 const session = require("express-session");
 // const csrf = require('csurf');
 const consolidate = require("consolidate"); // Templating library adapter for Express
-const swig = require("swig");
+const nunjucks = require("nunjucks");
 // const helmet = require("helmet");
 const MongoClient = require("mongodb").MongoClient; // Driver for connecting to MongoDB
 const http = require("http");
-const marked = require("marked");
+const { marked } = require("marked");
 //const nosniff = require('dont-sniff-mimetype');
 const app = express(); // Web framework to handle routing requests
 const routes = require("./app/routes");
@@ -27,12 +27,13 @@ const httpsOptions = {
 };
 */
 
-MongoClient.connect(db, (err, db) => {
+MongoClient.connect(db, { useUnifiedTopology: true }, (err, client) => {
     if (err) {
         console.log("Error: DB: connect");
         console.log(err);
         process.exit(1);
     }
+    const db = client.db();
     console.log(`Connected to the database`);
 
     /*
@@ -113,7 +114,7 @@ MongoClient.connect(db, (err, db) => {
     */
 
     // Register templating engine
-    app.engine(".html", consolidate.swig);
+    app.engine(".html", consolidate.nunjucks);
     app.set("view engine", "html");
     app.set("views", `${__dirname}/app/views`);
     // Fix for A5 - Security MisConfig
@@ -131,15 +132,8 @@ MongoClient.connect(db, (err, db) => {
     // Application routes
     routes(app, db);
 
-    // Template system setup
-    swig.setDefaults({
-        // Autoescape disabled
-        autoescape: false
-        /*
-        // Fix for A3 - XSS, enable auto escaping
-        autoescape: true // default value
-        */
-    });
+    // Preserve template rendering with a maintained engine and HTML escaping.
+    nunjucks.configure(`${__dirname}/app/views`, { autoescape: true });
 
     // Insecure HTTP connection
     http.createServer(app).listen(port, () => {
