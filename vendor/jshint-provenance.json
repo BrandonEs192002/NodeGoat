@@ -1,0 +1,24 @@
+{
+  "jshint": {
+    "version": "2.13.6",
+    "url": "https://registry.npmjs.org/jshint/-/jshint-2.13.6.tgz",
+    "integrity": "sha512-IVdB4G0NTTeQZrBoM8C5JFVLjV2KtZ9APgybDA1MK73xb09qFs0jCXyQLnCOp1cSZZZbvhq/6mfXHUTaDkffuQ==",
+    "sha256": "e2cbff43060b42919dd53aada40422541ce4a45dac2b3cd91702f2cbf5dbf8a2"
+  },
+  "lodash": {
+    "version": "4.18.1",
+    "url": "https://registry.npmjs.org/lodash/-/lodash-4.18.1.tgz",
+    "integrity": "sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==",
+    "sha256": "696942c2a488c9d7428e9ca5f12ccf03b52de01dcdbfe4d4751d392f0491ae16"
+  },
+  "jshint.js": {
+    "sha256": "98f24d9b817f990ff7581130d36d55d73f2ac68f3e6dd44b2bd4c00018417add"
+  },
+  "jshint-rhino.js": {
+    "sha256": "aa19ab8f0dde88094447f08989699c3c9e2bcbea96fee3054870ab7aabb0467a"
+  },
+  "output": {
+    "file": "vendor/jshint-2.13.6-s07.tgz",
+    "sha256": "491e42d25284859db5a62a15560811a6534dc0c64f15f0929e9c7fc11954b049"
+  }
+}

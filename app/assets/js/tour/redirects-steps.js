@@ -1,7 +1,8 @@
 /* globals $, Tour */
 
 const redirectsTour = new Tour({
-    name: "redirects"
+    name: "redirects",
+    framework: "bootstrap4"
 });
 
 redirectsTour.addSteps([{

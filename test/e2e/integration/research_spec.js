@@ -29,7 +29,7 @@ describe("/research behaviour", () => {
     const stockSymbol = "AAPL";
     cy.userSignIn();
     cy.visitPage("/research");
-    cy.get(".form-control")
+    cy.get("input[name=\"symbol\"]")
       .clear()
       .type(stockSymbol);
 

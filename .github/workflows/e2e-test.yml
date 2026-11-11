@@ -9,21 +9,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: ["10.x", "12.x", "14.x"]
+        node-version: ["22.x"]
 
     steps:
       - name: Checkout https://github.com/${{ github.repository }}@${{ github.ref }}
-        uses: actions/checkout@v2
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
 
       - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Use cache
-        uses: actions/cache@v2
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
         with:
           path: |
             ~/.npm
@@ -37,7 +37,7 @@ jobs:
 
       - name: Start MongoDB
         run: |
-          docker run -d -p 27017:27017 mongo:4.0
+          docker run -d -p 27017:27017 mongo:4.4
           timeout 60s bash -c 'until nc -z -w 2 localhost 27017 && echo MongoDB ready; do sleep 2; done'
 
       - name: Run E2E test suite
@@ -55,7 +55,7 @@ jobs:
 
       - name: Upload cypress artifacts
         if: failure() && (steps.test-suite.outcome == 'failure')
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: cypress-artifacts-node${{ matrix.node-version }}
           path: test/e2e/screenshots
