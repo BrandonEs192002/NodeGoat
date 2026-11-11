@@ -24,10 +24,14 @@ for path, entry in lock['packages'].items():
 observed = set()
 try:
     report = json.loads((out / 'dependency-check-report.json').read_text())
-    for dep in report.get('dependencies', []):
+    def inventory(dependencies):
+        for dependency in dependencies:
+            yield dependency
+            yield from inventory(dependency.get('relatedDependencies', []))
+    for dep in inventory(report.get('dependencies', [])):
         if dep.get('name') and dep.get('version'):
             observed.add((dep['name'], dep['version']))
-        for package in dep.get('packages', []):
+        for package in dep.get('packages', []) + dep.get('packageIds', []):
             identifier = package.get('id', '')
             if identifier.startswith('pkg:npm/'):
                 value = urllib.parse.unquote(identifier[8:].split('?')[0])
