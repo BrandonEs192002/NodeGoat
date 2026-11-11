@@ -40,7 +40,7 @@ try:
     for analyzer in ('Node Package Analyzer', 'Node Audit Analyzer'):
         if 'Finished ' + analyzer not in log:
             issues.append('Analyzer completion missing: ' + analyzer)
-    if (out / 'dc-exit-code.txt').read_text().strip() not in ('0', '1'):
+    if (out / 'dc-exit-code.txt').read_text().strip() not in ('0', '15'):
         issues.append('Dependency-Check infrastructure/analysis failure')
 except (OSError, ValueError, KeyError) as exc:
     missing = sorted(expected)

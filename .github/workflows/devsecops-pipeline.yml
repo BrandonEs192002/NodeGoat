@@ -74,7 +74,7 @@ jobs:
           "$RUNNER_TEMP/dependency-check/bin/dependency-check.sh" --data "$RUNNER_TEMP/dc-data" --nvdValidForHours 4 --disableNodeAuditCache --project NodeGoat --scan . --out "$REPORTS" --format HTML --format JSON --failOnCVSS 7 --enableExperimental --nvdApiKey "$NVD_API_KEY" > "$REPORTS/dc-console.log" 2>&1
           result=$?
           echo "$result" > "$REPORTS/dc-exit-code.txt"
-          if [ "$result" -eq 0 ] || [ "$result" -eq 1 ]; then
+          if [ "$result" -eq 0 ] || [ "$result" -eq 15 ]; then
             test -s "$REPORTS/dependency-check-report.json" && echo 'data_ready=true' >> "$GITHUB_OUTPUT"
           fi
           exit "$result"
