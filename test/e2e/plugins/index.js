@@ -17,15 +17,6 @@ const { port, hostName } = require("../../../config/env/all");
 module.exports = (on, config) => {
   "use strict";
 
-  on("task", {
-    "db:seed": () => new Promise((resolve, reject) => {
-      const child = require("child_process").spawn(process.execPath, ["artifacts/db-reset.js"], {
-        env: { ...process.env, NODE_ENV: "test" }, stdio: "ignore"
-      });
-      child.on("error", reject);
-      child.on("close", code => code === 0 ? resolve(null) : reject(new Error("Database seed failed: " + code)));
-    })
-  });
   config.baseUrl = `http://${hostName}:${port}`;
 
   return config;

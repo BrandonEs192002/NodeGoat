@@ -156,8 +156,3 @@ table.tablesorter thead tr th:hover {
 	white-space: normal;
   }
 }
-/* Bootstrap 4 JS state classes with the existing Bootstrap 3 layout CSS. */
-.dropdown-menu.show { display: block; }
-.collapse.show { display: block; }
-.popover .popover-header { margin: 0; padding: 8px 14px; font-size: 14px; background: #f7f7f7; }
-.popover .popover-body { padding: 9px 14px; }

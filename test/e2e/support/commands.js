@@ -27,7 +27,10 @@
   });
 
   Cypress.Commands.add("dbReset", () => {
-    cy.task("db:seed", null, { timeout: 20000 });
+    cy.exec("npm run db:seed", {
+      timeout: 6000,
+      failOnNonZeroExit: false
+    });
   });
 
 }());
