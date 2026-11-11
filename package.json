@@ -42,7 +42,7 @@
     "cy:verify": "cypress verify"
   },
   "devDependencies": {
-    "async": "3.2.6",
+    "async": "2.6.4",
     "cross-env": "7.0.3",
     "cypress": "16.3.0",
     "grunt": "1.6.3",
@@ -53,7 +53,7 @@
     "grunt-env": "latest",
     "grunt-jsbeautifier": "^0.2.12",
     "grunt-mocha-test": "0.13.3",
-    "jshint": "2.13.6",
+    "jshint": "file:vendor/jshint-2.13.6-s07.tgz",
     "mocha": "12.0.3",
     "nodemon": "3.1.14",
     "retire": "6.1.0",
@@ -76,6 +76,9 @@
     },
     "forever-monitor": {
       "chokidar": "3.6.0"
-    }
+    },
+    "async": "$async",
+    "faye-websocket": "0.11.4",
+    "jshint": "$jshint"
   }
 }
