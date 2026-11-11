@@ -8,6 +8,9 @@ def read(name):
     except Exception as e:
         problems.append(f'{name}: {e}')
         return {}
+coverage = read('sca-coverage.json')
+if not coverage.get('passed'):
+    problems.append('SCA coverage incomplete: ' + str(coverage.get('issues', [])))
 s = read('semgrep.json')
 if not s.get('paths', {}).get('scanned') or s.get('errors'):
     problems.append('SAST missing scanned files or has errors')

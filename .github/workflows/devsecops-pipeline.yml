@@ -29,6 +29,15 @@ jobs:
           path: ${{ runner.temp }}/dc-data
           key: dc-13.0.0-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: dc-13.0.0-${{ runner.os }}-
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install all locked dependencies
+        run: |
+          node --version > "$REPORTS/node-version.txt"
+          npm --version > "$REPORTS/npm-version.txt"
+          npm ci --ignore-scripts --include=dev --no-audit --no-fund > "$REPORTS/npm-ci.log" 2>&1
       - name: SAST
         run: |
           pipx install semgrep==1.185.0
@@ -49,6 +58,15 @@ jobs:
         run: |
           test -n "$NVD_API_KEY" || { echo 'NVD_API_KEY is missing'; exit 1; }
           echo 'NVD_API_KEY is present (value not printed)' > "$REPORTS/nvd-secret-check.txt"
+          python3 - <<'PYTHON'
+          import json, os, urllib.request
+          request = urllib.request.Request('https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=1', headers={'apiKey': os.environ['NVD_API_KEY']})
+          with urllib.request.urlopen(request, timeout=60) as response:
+              data = json.load(response)
+              assert data.get('totalResults', 0) > 0
+              with open(os.environ['REPORTS'] + '/nvd-preflight.json', 'w') as output:
+                  json.dump({'http_status': response.status, 'totalResults': data['totalResults'], 'timestamp': data.get('timestamp')}, output, indent=2)
+          PYTHON
           curl -fsSL https://github.com/dependency-check/DependencyCheck/releases/download/v13.0.0/dependency-check-13.0.0-release.zip -o "$RUNNER_TEMP/dc.zip"
           unzip -q "$RUNNER_TEMP/dc.zip" -d "$RUNNER_TEMP"
           "$RUNNER_TEMP/dependency-check/bin/dependency-check.sh" --version > "$REPORTS/dc-version.txt"
@@ -66,6 +84,9 @@ jobs:
         with:
           path: ${{ runner.temp }}/dc-data
           key: dc-13.0.0-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Verify Node.js SCA coverage
+        if: ${{ always() }}
+        run: python3 .security/coverage.py "$REPORTS"
       - name: Quality Gate
         if: ${{ always() }}
         run: python3 .security/gate.py "$REPORTS" > "$REPORTS/quality-gate.json"
